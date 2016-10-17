@@ -4,7 +4,10 @@ var CANVAS_SELECTOR, TABLEAU_NULL, convertRowToObject, drawLinks, drawNodes, dra
   slice = [].slice,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
+
 TABLEAU_NULL = '%null%';
+
+//document.domain = 'brilliant-data.net';
 
 getTableau = function() {
   return parent.parent.tableau;
@@ -134,8 +137,7 @@ initEditor = function() {
   //window.parent.document.getElementById('tabViewer').addEventListener("click", getClickPosition, false);  
 
   onDataLoadError = function(err) {
-    console.log("error");
-    return console.err("Error during Tableau Async request:", err);
+    return console.error("Error during Tableau Async request:", err._error.message, err._error.stack);
   };
   onDataLoadOk = errorWrapped("Getting data from Tableau", function(table) {
     var col_indexes, data, row, tableauData;
@@ -345,7 +347,7 @@ initEditor = function() {
 
   function onMarksSelect(marksEvent) {
     //check on what we are receiving in this function
-    console.log("we are in the mark selection" + marksEvent.getWorksheet().getName());
+    console.log("we are in the mark selection", marksEvent.getWorksheet().getName());
     if (marksEvent.getWorksheet().getName() == 'topic hive') {
       return marksEvent.getMarksAsync().then(GetSelectedMarks,GetSelectedMarksError);
     }
@@ -432,18 +434,21 @@ initEditor = function() {
   }
 
   GetSelectedMarksError = function(err) {
-    console.log("error");
-    return console.err("Error during Tableau marks request:", err);
+    return console.error("Error during Tableau marks request:", err.message, err.stack);
   };
+  
+
 
   //on initial load get data and store it // we will need to recall this when the underlying data changes
+  
   getCurrentWorksheet().getUnderlyingDataAsync({
     maxRows: 0,
     ignoreSelection: true,
     includeAllColumns: true,
     ignoreAliases: true
   }).then(onDataLoadOk, onDataLoadError);
-
+  
+  
   //append the jquery ui script to the parent
 //  $('head', window.parent.document).append('<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"><\/script>');
 //  $('head', window.parent.document).append('<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"><\/script>');
@@ -457,6 +462,7 @@ initEditor = function() {
   //add event listener to the viz
   return getCurrentViz().addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelect);
 };
+
 
 this.appApi = {
   initEditor: initEditor

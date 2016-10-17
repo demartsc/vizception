@@ -139,19 +139,24 @@ body {
 <input type="text" id = "htext2" class="hidden" value="" />
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <!--<script src="http://padawandojo.x10host.com/vizception2.js"></script>-->
-<script src="http://88.151.101.155:80/webdataconnectors/js/vizception.js"></script>
-<script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+
+<!-- <script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>-->
+<!--<script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script> -->
+<script src="http://stage-155.brilliant-data.net/javascripts/api/tableau-2.1.0.min.js"></script>
+
+
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script> 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://stage-155.brilliant-data.net/webdataconnectors/js/vizception.js"></script>
 
 <script>
 //tableau js script for the tooltip viz
   var tviz, tviz2, one, workbooka, workbookb, activeSheet, Worksheet, worksheet;
   $(function() {
     var onePh = document.getElementById("tableauViz1");
-    var oneUrl = "http://88.151.101.155/views/vizception/tooltip?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+    var oneUrl = "http://stage-155.brilliant-data.net/views/vizception/tooltip?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
     //we can add the below parms to get rid of the flashing, think it helps in the case to tell user it is thinking about filters.
     //&:jsdebug=n&:display_overlay=no&:display_static_image=no&:animate_transition=yes
 
@@ -167,7 +172,9 @@ body {
     tviz = new tableauSoftware.Viz(onePh, oneUrl, oneOptions);
 
     var twoPh = document.getElementById("tableauViz2");
-    var twoUrl = "http://88.151.101.155/views/vizception/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+  
+    //var twoUrl = "http://stage-155.brilliant-data.net/views/vizception/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+    var twoUrl = "http://stage-155.brilliant-data.net/views/arms-flow-workbook-stage155/Dashboard1?:embed=y&:showShareOptions=true&:display_count=no&:showVizHome=no"; 
     //we can add the below parms to get rid of the flashing, think it helps in the case to tell user it is thinking about filters.
     //&:jsdebug=n&:display_overlay=no&:display_static_image=no&:animate_transition=yes
 
