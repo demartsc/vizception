@@ -1,5 +1,4 @@
 // this code was adapted from an original piece of code provided by Tamas Foldi. 
-//http://88.151.101.155:80/webdataconnectors/senkey-chart.html
 var CANVAS_SELECTOR, TABLEAU_NULL, convertRowToObject, drawLinks, drawNodes, drawNodesAndLinks, drawSanKeyGraph, errorWrapped, getColumnIndexes, getCurrentViz, getCurrentWorksheet, getTableau, initEditor, makeSanKeyData,
   slice = [].slice,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
