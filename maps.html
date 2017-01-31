@@ -20,6 +20,8 @@ body {
   text-align: right;
   right: 5px;
   top: 5px;
+/*  opacity: 0;
+  z-index: -99999;*/
 }
 
 .stroke {
@@ -40,7 +42,7 @@ body {
 }
 
 .country {
-  fill: grey;
+  fill: steelblue;
   stroke: #c9cbbd;
   stroke-width: 0.25px;
 }
@@ -63,7 +65,6 @@ body {
 
 <select id="projection-menu"></select>
 <input type="text" id = "htext" class="hidden" value="" />
-<input type="text" id = "htext2" class="hidden" value="" />
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="https://d3js.org/d3.geo.projection.v0.min.js"></script>
 <script src="https://d3js.org/topojson.v1.min.js"></script>
@@ -169,43 +170,80 @@ svg.append("path")
     .attr("class", "graticule")
     .attr("d", path);
 
-d3.json("data/world-110m.json", function(error, world) {
-  if (error) throw error;
+function drawMap(tableauData) {
 
-  d3.csv("data/ISO-3166.csv", function(error, countrydata) {
-    //console.log(countrydata);
+  d3.json("data/world-110m.json", function(error, world) {
+    if (error) throw error;
+    console.log(world);
 
-    var countries = topojson.feature(world, world.objects.countries).features;
+    //d3.json("data/ISO-3166.csv", function(error, countrydata) {
+      //countrydata = tableauData.filter(function(year) {year == "2012-12-01";});
+      countrydata = tableauData;
+      console.log(countrydata);
 
-    countries.forEach(function(ctry) {
-      var result =  countrydata.filter(function(iso3166) {
-          return parseInt(iso3166.countryCode) === parseInt(ctry.id);
-      })
-      ctry.alpha2 = (result[0] !== undefined) ? result[0].alpha2 : null;
-      ctry.alpha3 = (result[0] !== undefined) ? result[0].alpha3 : null;
-      ctry.isoName = (result[0] !== undefined) ? result[0].name : null;
-    });
+      var countries = topojson.feature(world, world.objects.countries).features;
 
-    //console.log(countries);
+      countries.forEach(function(ctry) {
+        var result =  countrydata.filter(function(iso3166) {
+            return parseInt(iso3166['Country Code']) === parseInt(ctry.id);
+        })
 
-    svg.selectAll(".country")
-        .data(countries)
-        .enter().insert("path",".graticule")
-        .attr("id",function(d, i) { return countries[i].alpha3})
-        .attr("class", "country")
-        .attr("d", path);
+        ctry.alpha3 = (result[0] !== undefined) ? result[0].Alpha3 : null;
+        ctry.isoName = (result[0] !== undefined) ? result[0].Country : null;
+        ctry['Birth Rate'] = (result[0] !== undefined) ? result[0]['Birth Rate'] : null;
+        ctry['CO2 Emissions'] = (result[0] !== undefined) ? result[0]['CO2 Emissions'] : null;
+        ctry['GDP'] = (result[0] !== undefined) ? result[0]['GDP'] : null;
+        ctry['Infant Mortality Rate'] = (result[0] !== undefined) ? result[0]['Infant Mortality Rate'] : null;
+        ctry['Internet Usage'] = (result[0] !== undefined) ? result[0]['Internet Usage'] : null;
+        ctry['Life Expectancy Female'] = (result[0] !== undefined) ? result[0]['Life Expectancy Female'] : null;
+        ctry['Life Expectancy Male'] = (result[0] !== undefined) ? result[0]['Life Expectancy Male'] : null;
 
-/*  //We may or may not need country boundary at the end of the day
-    svg.selectAll(".boundary")
-        .data(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; })) 
-        //.datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
-        .enter().insert("path", ".graticule")
-        .attr("class", "country-boundary")
-        .attr("d", path);
+
+/*
+Objects to add
+Alpha3
+Birth Rate
+CO2 Emissions
+Country
+Country Code
+GDP
+Infant Mortality Rate
+Internet Usage
+Life Expectancy Female
+Life Expectancy Male
+Name
+Population Total
+Region
+Year
 */
+      });
 
-  });
-});
+      //console.log(countries);
+
+      svg.selectAll(".country")
+          .data(countries)
+          .enter().insert("path",".graticule")
+          .attr("id",function(d, i) { return countries[i].alpha3})
+          .attr("class", "country")
+          .attr("d", path)
+          .attr("name",function(d, i) { return countries[i].isoName})
+          .attr("birthrate",function(d, i) { return countries[i]['Birth Rate']})
+          .attr("co2",function(d, i) { return countries[i]['CO2 Emissions']})
+          .attr("gdp",function(d, i) { return countries[i]['GDP']})
+          .attr('fill-opacity', 1);
+
+  /*  //We may or may not need country boundary at the end of the day
+      svg.selectAll(".boundary")
+          .data(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; })) 
+          //.datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+          .enter().insert("path", ".graticule")
+          .attr("class", "country-boundary")
+          .attr("d", path);
+  */
+
+      //});
+    });
+}
 
 
 var menu = d3.select("#projection-menu")
@@ -215,23 +253,6 @@ menu.selectAll("option")
     .data(options)
   .enter().append("option")
     .text(function(d) { return d.name; });
-
-function colorMap(tableauData) {
-  workbook = getCurrentViz().getWorkbook();
-  parmsArray = workbook.getParametersAsync();
-  for(var i =0; i < parmsArray.length; i++)
-  {
-    if(parmsArray.getName() === 'Color By') 
-    {
-      //set the value of the field to color by based on the parameter value
-
-    }
-  }
-
-  //down the road we can use code like this to color the countries based on data
-  d3.selectAll(".country").style("fill",function(d) { return color(d.id); });
-}
-
 
 function loop() {
   var j = Math.floor(Math.random() * n);
@@ -246,7 +267,7 @@ function change() {
 
 function update(option) {
   svg.selectAll("path").transition()
-      .duration(750)
+      .duration(1500)
       .attrTween("d", projectionTween(projection, projection = option.projection));
 }
 

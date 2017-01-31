@@ -16,6 +16,10 @@ getCurrentViz = function() {
   return getTableau().VizManager.getVizs()[0];
 };
 
+getCurrentWorkbook = function() {
+  return getCurrentViz().getWorkbook();
+};
+
 getCurrentWorksheet = function() {
   return getCurrentViz().getWorkbook().getActiveSheet().getWorksheets()[0];
 };
@@ -87,10 +91,10 @@ initEditor = function() {
       }
       return results;
     })();
-    //console.log(data);
+    console.log(data);
     tableauData = data; 
     $('#htext').val(JSON.stringify(tableauData)); // trying to save this to a hidden object for later use
-    colorMap(tableauData); // set up base graph with all data
+    drawMap(tableauData); // set up base graph with all data
   });
 
   //this is not getting triggered anymore, moved it outside below
@@ -105,7 +109,96 @@ initEditor = function() {
     }).then(onDataLoadOk, onDataLoadError);
 
   };
+
+  function onParmChange(parmEvent) {
+    //check on what we are receiving in this function
+    //parms = getCurrentWorkbook().getParametersAsync(); //get parms, having trouble getting to them from event
+
+    console.log("we are in the parmChange", parmEvent.getParameterName());
+    console.log(parmEvent.getParameterAsync());
+
+    //if (parmEvent.getParameterName() == parms.getName()) {
+    if (parmEvent.getParameterName() == 'Color By') {
+      //console.log(parmEvent.getParameterAsync().getCurrentValue());      
+      //updateColor(parms.getCurrentValue());
+      updateColor('GDP'); //hardcoding to test the subsequent function call
+    }
+    else if (parmEvent.getParameterName() == 'Projections') {
+      //console.log(parmEvent.getParameterAsync().getCurrentValue());      
+      //updateProjection(parms.getCurrentValue());
+      updateProjection('Robinson'); //hardcoding to test the subsequent function call
+    }
+    //}
+  }
  
+  function GetSelectedParm(Parameter) {
+    // not sure we need this at this point
+    conole.log('here');
+  }
+
+  GetSelectedParmError = function(err) {
+    // not sure we need this at this point
+    return console.error("Error during Tableau marks request:", err.message, err.stack);
+  };
+
+
+  function getColor(valueIn, valuesIn) {
+
+    var color = d3.scale.linear() // create a linear scale
+      .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
+      .range([.3,1]);   // output for opacity between .3 and 1 %
+
+    return color(valueIn);  // return that number to the caller
+  }
+  
+  function updateColor(parmValue) {
+    // obtained from http://bl.ocks.org/rgdonohue/9280446 and modified slightly
+    // not sure we need this at this point
+    console.log('setting color to be based on:', parmValue);
+
+    var dataRange = getDataRange(parmValue); // get the min/max values from the current year's range of data values
+    d3.selectAll('.country').transition()  //select all the countries and prepare for a transition to new values
+      .duration(1500)  // give it a smooth time period for the transition
+      .attr('fill-opacity', function(d) {
+        return getColor(d[parmValue], dataRange);  // the end color value
+      })
+
+    //d3.selectAll(".country").style("fill",function(d) { return color(d.id); });
+
+  }
+
+  function getDataRange(parmValue) {
+    // obtained from http://bl.ocks.org/rgdonohue/9280446
+    // function loops through all the data values from the current data attribute
+    // and returns the min and max values
+
+    var min = Infinity, max = -Infinity;  
+    d3.selectAll('.country')
+      .each(function(d,i) {
+        var currentValue = parseFloat(d[parmValue]); //d.attr(parmValue);
+        if(currentValue <= min && currentValue != -99 && currentValue != 'undefined') {
+          min = currentValue;
+        }
+        if(currentValue >= max && currentValue != -99 && currentValue != 'undefined') {
+          max = currentValue;
+        }
+    });
+    console.log(min,max);
+    return [min,max];  //boomsauce
+  }
+
+  function updateProjection(parmValue) {
+    // obtained from http://bl.ocks.org/rgdonohue/9280446 and modified slightly
+    // not sure we need this at this point
+    console.log('setting projection to:', parmValue);
+
+    var opts = options.filter(function(obj) {return obj.name == parmValue;});
+
+    clearInterval(interval);
+    update(opts[0]);
+  }
+
+
   //on initial load get data and store it // we will need to recall this when the underlying data changes  
   getCurrentWorksheet().getUnderlyingDataAsync({
     maxRows: 0,
@@ -115,7 +208,7 @@ initEditor = function() {
   }).then(onDataLoadOk, onDataLoadError);
   
   //add event listener to the viz
-  //return getCurrentViz().addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelect);
+  return getCurrentViz().addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, onParmChange);
 };
 
 
