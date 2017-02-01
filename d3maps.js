@@ -119,14 +119,18 @@ initEditor = function() {
 
     //if (parmEvent.getParameterName() == parms.getName()) {
     if (parmEvent.getParameterName() == 'Color By') {
-      //console.log(parmEvent.getParameterAsync().getCurrentValue());      
-      //updateColor(parms.getCurrentValue());
+
       updateColor('GDP'); //hardcoding to test the subsequent function call
+      //updateProjection(parmEvent.getParameterAsync().getCurrentValue());
+
     }
     else if (parmEvent.getParameterName() == 'Projections') {
+
       //console.log(parmEvent.getParameterAsync().getCurrentValue());      
-      //updateProjection(parms.getCurrentValue());
+      //console.log(parmEvent.$2.$0.$z.$4[0]._impl.$c.value);
       updateProjection('Robinson'); //hardcoding to test the subsequent function call
+      //updateProjection(parmEvent.getParameterAsync().getCurrentValue());
+
     }
     //}
   }
