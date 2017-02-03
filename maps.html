@@ -20,8 +20,8 @@ body {
   text-align: right;
   right: 5px;
   top: 5px;
-/*  opacity: 0;
-  z-index: -99999;*/
+  opacity: 0;
+  z-index: -99999;
 }
 
 .stroke {
@@ -137,7 +137,7 @@ var color = d3.scale.threshold()
     .range(["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"]);
 
 
-var interval = setInterval(loop, 1500),
+interval = setInterval(loop, 1500),
     i = 0,
     n = options.length - 1;
 
@@ -174,12 +174,12 @@ function drawMap(tableauData) {
 
   d3.json("data/world-110m.json", function(error, world) {
     if (error) throw error;
-    console.log(world);
+    //console.log(world);
 
     //d3.json("data/ISO-3166.csv", function(error, countrydata) {
       //countrydata = tableauData.filter(function(year) {year == "2012-12-01";});
       countrydata = tableauData;
-      console.log(countrydata);
+      //console.log(countrydata);
 
       var countries = topojson.feature(world, world.objects.countries).features;
 
@@ -191,31 +191,20 @@ function drawMap(tableauData) {
         ctry.alpha3 = (result[0] !== undefined) ? result[0].Alpha3 : null;
         ctry.isoName = (result[0] !== undefined) ? result[0].Country : null;
         ctry['Birth Rate'] = (result[0] !== undefined) ? result[0]['Birth Rate'] : null;
-        ctry['CO2 Emissions'] = (result[0] !== undefined) ? result[0]['CO2 Emissions'] : null;
         ctry['GDP'] = (result[0] !== undefined) ? result[0]['GDP'] : null;
         ctry['Infant Mortality Rate'] = (result[0] !== undefined) ? result[0]['Infant Mortality Rate'] : null;
         ctry['Internet Usage'] = (result[0] !== undefined) ? result[0]['Internet Usage'] : null;
+        ctry['Internet Usage'] = (result[0] !== undefined) ? result[0]['Internet Usage'] : null;
         ctry['Life Expectancy Female'] = (result[0] !== undefined) ? result[0]['Life Expectancy Female'] : null;
         ctry['Life Expectancy Male'] = (result[0] !== undefined) ? result[0]['Life Expectancy Male'] : null;
-
-
-/*
-Objects to add
-Alpha3
-Birth Rate
-CO2 Emissions
-Country
-Country Code
-GDP
-Infant Mortality Rate
-Internet Usage
-Life Expectancy Female
-Life Expectancy Male
-Name
-Population Total
-Region
-Year
-*/
+        ctry['Mobile Phone Usage'] = (result[0] !== undefined) ? result[0]['Mobile Phone Usage'] : null;
+        ctry['Population 0 14'] = (result[0] !== undefined) ? result[0]['Population 0 14'] : null;
+        ctry['Population 15 64'] = (result[0] !== undefined) ? result[0]['Population 15 64'] : null;
+        ctry['Population 65 up'] = (result[0] !== undefined) ? result[0]['Population 65 up'] : null;
+        ctry['Population Total'] = (result[0] !== undefined) ? result[0]['Population Total'] : null;
+        ctry['Population Urban'] = (result[0] !== undefined) ? result[0]['Population Urban'] : null;
+        ctry['Tourism Inbound'] = (result[0] !== undefined) ? result[0]['Tourism Inbound'] : null;
+        ctry['Tourism Outbound'] = (result[0] !== undefined) ? result[0]['Tourism Outbound'] : null;
       });
 
       //console.log(countries);
@@ -228,20 +217,24 @@ Year
           .attr("d", path)
           .attr("name",function(d, i) { return countries[i].isoName})
           .attr("birthrate",function(d, i) { return countries[i]['Birth Rate']})
-          .attr("co2",function(d, i) { return countries[i]['CO2 Emissions']})
+          .attr("mort",function(d, i) { return countries[i]['Infant Mortality Rate']})
           .attr("gdp",function(d, i) { return countries[i]['GDP']})
-          .attr('fill-opacity', 1);
+          .attr("internet",function(d, i) { return countries[i]['Internet Usage']})
+          .attr("mobile",function(d, i) { return countries[i]['Mobile Phone Usage']})
+          .attr("female",function(d, i) { return countries[i]['Life Expectancy Female']})
+          .attr("male",function(d, i) { return countries[i]['Life Expectancy Male']})
+          .attr("pop0",function(d, i) { return countries[i]['Population 0 14']})
+          .attr("pop15",function(d, i) { return countries[i]['Population 15 64']})
+          .attr("pop65",function(d, i) { return countries[i]['Population 65 up']})
+          .attr("pop",function(d, i) { return countries[i]['Population Total']})
+          .attr("popUrban",function(d, i) { return countries[i]['Population Urban']})
+          .attr("tourIn",function(d, i) { return countries[i]['Tourism Inbound']})
+          .attr("tourOut",function(d, i) { return countries[i]['Tourism Outbound']})
+          .attr('fill-opacity', 0);
 
-  /*  //We may or may not need country boundary at the end of the day
-      svg.selectAll(".boundary")
-          .data(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; })) 
-          //.datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
-          .enter().insert("path", ".graticule")
-          .attr("class", "country-boundary")
-          .attr("d", path);
-  */
-
-      //});
+      svg.selectAll(".country")
+          .attr('fill-opacity', function(d) {
+            return getColor(d['Birth Rate'], getDataRange("Birth Rate"))});  // the end color value
     });
 }
 
@@ -262,14 +255,46 @@ function loop() {
 
 function change() {
   clearInterval(interval);
+  interval = null;
   update(options[this.selectedIndex]);
 }
 
 function update(option) {
+  //console.log(option);
   svg.selectAll("path").transition()
       .duration(1500)
       .attrTween("d", projectionTween(projection, projection = option.projection));
 }
+
+function getColor(valueIn, valuesIn) {
+
+  var color = d3.scale.linear() // create a linear scale
+    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
+    .range([.3,1]);   // output for opacity between .3 and 1 %
+
+  return color(valueIn);  // return that number to the caller
+}
+
+function getDataRange(parmValue) {
+  // obtained from http://bl.ocks.org/rgdonohue/9280446
+  // function loops through all the data values from the current data attribute
+  // and returns the min and max values
+
+  var min = Infinity, max = -Infinity;  
+  d3.selectAll('.country')
+    .each(function(d,i) {
+      var currentValue = parseFloat(d[parmValue]); //d.attr(parmValue);
+      if(currentValue <= min && currentValue != -99 && currentValue != 'undefined') {
+        min = currentValue;
+      }
+      if(currentValue >= max && currentValue != -99 && currentValue != 'undefined') {
+        max = currentValue;
+      }
+  });
+  console.log(min,max);
+  return [min,max];  //boomsauce
+}
+
 
 function projectionTween(projection0, projection1) {
   return function(d) {

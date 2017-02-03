@@ -1,6 +1,7 @@
 // this code was adapted from an original piece of code provided by Tamas Foldi. 
 var CANVAS_SELECTOR, TABLEAU_NULL, convertRowToObject, drawLinks, drawNodes, drawNodesAndLinks, drawSanKeyGraph, errorWrapped, getColumnIndexes, getCurrentViz, getCurrentWorksheet, getTableau, initEditor, makeSanKeyData,
   slice = [].slice,
+  interval,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 
@@ -79,7 +80,7 @@ initEditor = function() {
   onDataLoadOk = errorWrapped("Getting data from Tableau", function(table) {
     var col_indexes, data, row, tableauData;
     //we have hardcoded column indexes here, but there is probably a better way
-    col_indexes = getColumnIndexes(table, ["Alpha3", "Country","Country Code", "Name", "Region", "Year", "Birth Rate", "CO2 Emissions", "GDP", "Infant Mortality Rate", "Internet Usage", "Life Expectancy Female", "Life Expectancy Male", "Population Total"]);
+    col_indexes = getColumnIndexes(table, ["Alpha3", "Country","Country Code", "Name", "Region", "Year", "Birth Rate", "CO2 Emissions", "GDP", "Infant Mortality Rate", "Internet Usage", "Life Expectancy Female", "Life Expectancy Male","Mobile Phone Usage", "Population 0 14", "Population 15 64", "Population 65 up", "Population Total", "Population Urban", "Tourism Inbound", "Tourism Outbound"]);
     //console.log(col_indexes);
     data = (function() {
       var j, len, ref, results;
@@ -91,10 +92,14 @@ initEditor = function() {
       }
       return results;
     })();
-    console.log(data);
+    //console.log(data);
     tableauData = data; 
     $('#htext').val(JSON.stringify(tableauData)); // trying to save this to a hidden object for later use
     drawMap(tableauData); // set up base graph with all data
+
+    //update color the first time through
+    updateColor("Birth Rate");
+
   });
 
   //this is not getting triggered anymore, moved it outside below
@@ -111,54 +116,26 @@ initEditor = function() {
   };
 
   function onParmChange(parmEvent) {
-    //check on what we are receiving in this function
-    //parms = getCurrentWorkbook().getParametersAsync(); //get parms, having trouble getting to them from event
-
-    console.log("we are in the parmChange", parmEvent.getParameterName());
-    console.log(parmEvent.getParameterAsync());
+    //console.log("we are in the parmChange", parmEvent.getParameterName());
+    //parmEvent.getParameterAsync().then(function(a){console.log(a.getCurrentValue().value);});
 
     //if (parmEvent.getParameterName() == parms.getName()) {
     if (parmEvent.getParameterName() == 'Color By') {
-
-      updateColor('GDP'); //hardcoding to test the subsequent function call
-      //updateProjection(parmEvent.getParameterAsync().getCurrentValue());
+      //updateColor('GDP'); //hardcoding to test the subsequent function call
+      parmEvent.getParameterAsync().then(function(a) {updateColor(a.getCurrentValue().value);}); //hardcoding to test the subsequent function call
 
     }
     else if (parmEvent.getParameterName() == 'Projections') {
-
-      //console.log(parmEvent.getParameterAsync().getCurrentValue());      
-      //console.log(parmEvent.$2.$0.$z.$4[0]._impl.$c.value);
-      updateProjection('Robinson'); //hardcoding to test the subsequent function call
-      //updateProjection(parmEvent.getParameterAsync().getCurrentValue());
-
+      //updateProjection('Robinson'); //hardcoding to test the subsequent function call
+      parmEvent.getParameterAsync().then(function(a) {updateProjection(a.getCurrentValue().value);}); //hardcoding to test the subsequent function call
     }
     //}
-  }
- 
-  function GetSelectedParm(Parameter) {
-    // not sure we need this at this point
-    conole.log('here');
-  }
-
-  GetSelectedParmError = function(err) {
-    // not sure we need this at this point
-    return console.error("Error during Tableau marks request:", err.message, err.stack);
-  };
-
-
-  function getColor(valueIn, valuesIn) {
-
-    var color = d3.scale.linear() // create a linear scale
-      .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-      .range([.3,1]);   // output for opacity between .3 and 1 %
-
-    return color(valueIn);  // return that number to the caller
   }
   
   function updateColor(parmValue) {
     // obtained from http://bl.ocks.org/rgdonohue/9280446 and modified slightly
     // not sure we need this at this point
-    console.log('setting color to be based on:', parmValue);
+    //console.log('setting color to be based on:', parmValue);
 
     var dataRange = getDataRange(parmValue); // get the min/max values from the current year's range of data values
     d3.selectAll('.country').transition()  //select all the countries and prepare for a transition to new values
@@ -171,35 +148,20 @@ initEditor = function() {
 
   }
 
-  function getDataRange(parmValue) {
-    // obtained from http://bl.ocks.org/rgdonohue/9280446
-    // function loops through all the data values from the current data attribute
-    // and returns the min and max values
-
-    var min = Infinity, max = -Infinity;  
-    d3.selectAll('.country')
-      .each(function(d,i) {
-        var currentValue = parseFloat(d[parmValue]); //d.attr(parmValue);
-        if(currentValue <= min && currentValue != -99 && currentValue != 'undefined') {
-          min = currentValue;
-        }
-        if(currentValue >= max && currentValue != -99 && currentValue != 'undefined') {
-          max = currentValue;
-        }
-    });
-    console.log(min,max);
-    return [min,max];  //boomsauce
-  }
-
   function updateProjection(parmValue) {
-    // obtained from http://bl.ocks.org/rgdonohue/9280446 and modified slightly
-    // not sure we need this at this point
-    console.log('setting projection to:', parmValue);
+    //console.log(parmValue);
+    if (parmValue == 'Cycle') {
+      interval = setInterval(loop, 1500),
+      i = 0,
+      n = options.length - 1;
+    }
+    else if (parmValue != 'Cycle') {
+      clearInterval(interval);
+      interval = null;
 
-    var opts = options.filter(function(obj) {return obj.name == parmValue;});
-
-    clearInterval(interval);
-    update(opts[0]);
+      var opts = options.filter(function(obj) {return obj.name == parmValue;});
+      update(opts[0]);
+    }
   }
 
 
@@ -210,7 +172,7 @@ initEditor = function() {
     includeAllColumns: true,
     ignoreAliases: true
   }).then(onDataLoadOk, onDataLoadError);
-  
+
   //add event listener to the viz
   return getCurrentViz().addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, onParmChange);
 };
