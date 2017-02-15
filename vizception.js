@@ -9,7 +9,7 @@ TABLEAU_NULL = '%null%';
 //document.domain = 'brilliant-data.net';
 
 getTableau = function() {
-  return parent.parent.tableau;
+      return parent.parent.tableau;
 };
 
 getCurrentViz = function() {
