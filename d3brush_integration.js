@@ -4,6 +4,9 @@ var CANVAS_SELECTOR, TABLEAU_NULL, convertRowToObject, drawLinks, drawNodes, dra
   interval,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
+var parms = new Array;
+var xAxisField, yAxisField;
+
 
 TABLEAU_NULL = '%null%';
 
@@ -80,7 +83,8 @@ initEditor = function() {
   onDataLoadOk = errorWrapped("Getting data from Tableau", function(table) {
     var col_indexes, data, row, tableauData;
     //we have hardcoded column indexes here, but there is probably a better way
-    col_indexes = getColumnIndexes(table, ["Order Date", "AGG(SalesRollingAverage)"]);
+    //col_indexes = getColumnIndexes(table, ["Order Date", "AGG(SalesRollingAverage)"]);
+    col_indexes = getColumnIndexes(table, [xAxisField, yAxisField]);
     //console.log(col_indexes);
     data = (function() {
       var j, len, ref, results;
@@ -98,16 +102,38 @@ initEditor = function() {
     drawBrush(tableauData); // set up base graph with all data
   });
 
-  //on initial load get data and store it // we will need to recall this when the underlying data changes  
-  getCurrentWorksheet().getSummaryDataAsync({
-    maxRows: 0,
-    ignoreSelection: true,
-    includeAllColumns: true,
-    ignoreAliases: true
-  }).then(onDataLoadOk, onDataLoadError);
+
+  //on initial load we are going to get workbook parameters and read the two field names from them
+  getCurrentWorkbook().getParametersAsync().then(function(a) {
+    parms = a; //save parms into a, it is easier to deal with
+
+    // to check on whether parms is loaded correctly
+    //console.log(parms);
+
+    //loop through array and set the xAxis and yAxis field names
+    for(var i =0; i < parms.length; i++)
+    {
+        if(parms[i].getName() === 'xAxisField') 
+        {
+          xAxisField = parms[i].getCurrentValue().value;
+        }
+        else if(parms[i].getName() === 'yAxisField') 
+        {
+          yAxisField = parms[i].getCurrentValue().value;
+        }
+    }
+
+    //on initial load get data and store it // we will need to recall this when the underlying data changes  
+    getCurrentWorksheet().getSummaryDataAsync({
+      maxRows: 0,
+      ignoreSelection: true,
+      includeAllColumns: true,
+      ignoreAliases: true
+    }).then(onDataLoadOk, onDataLoadError);
 
   //add event listener to the viz don't need this for brush only interaction
   //return getCurrentViz().addEventListener(tableau.TableauEventName.PARAMETER_VALUE_CHANGE, onParmChange);
+  });
 };
 
 

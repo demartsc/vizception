@@ -75,31 +75,6 @@ var context = svg.append("g")
     .attr("class", "context")
     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-
-function vizFilter(filterName,filterValue,filterType)
-{
-  sheet= tviz.getWorkbook().getActiveSheet();
-  if(sheet.getSheetType() === 'worksheet') 
-  {
-    sheet.applyFilterAsync(filterName,filterValue,filterType); 
-  }
-  else
-  {
-    worksheetArray = sheet.getWorksheets();
-    for(var i =0; i < worksheetArray.length; i++)
-    {
-      if (filterValue=="all")
-      {
-        worksheetArray[i].applyFilterAsync(filterName,"","ALL"); 
-      }
-      else 
-      {
-        worksheetArray[i].applyFilterAsync(filterName,filterValue,filterType);         
-      }
-    }
-  }
-};
-
 function property (v) {
     return function (_) {
     if(!arguments.length)
@@ -114,8 +89,10 @@ function drawBrush(tableauData) {
   var d3Data = new Array;
   for (j = 0, len = tableauData.length; j < len; j++) {
     d3Data[j] = {
-      date : tableauData[j]["Order Date"],
-      price : tableauData[j]["AGG(SalesRollingAverage)"]
+//      date : tableauData[j]["Order Date"],
+      date : tableauData[j][xAxisField],
+      //price : tableauData[j]["AGG(SalesRollingAverage)"]
+      price : tableauData[j][yAxisField]
     }
   }
 
@@ -147,20 +124,21 @@ function brushed() {
   var filts = s.map(x2.invert, x2);
   //x2.domain(s.map(x2.invert, x2));
 
-  console.log(filts);
+  //this log is to check on the filts array and make sure it has valid dates
+  //console.log(filts);
   //getCurrentWorksheet().applyRangeFilterAsync("Order Date", {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
 
-  sheet = getWorkbook().getActiveSheet();
+  sheet = getCurrentWorkbook().getActiveSheet();
   if(sheet.getSheetType() === 'worksheet') 
   {
-    sheet.applyRangeFilterAsync("Order Date", {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
+    sheet.applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
   }
   else
   {
     worksheetArray = sheet.getWorksheets();
     for(var i =0; i < worksheetArray.length; i++)
     {
-        worksheetArray[i].applyRangeFilterAsync("Order Date", {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
+        worksheetArray[i].applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
     }
   }
 
