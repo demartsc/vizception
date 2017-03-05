@@ -104,9 +104,7 @@ initEditor = function() {
 
 
   //on initial load we are going to get workbook parameters and read the two field names from them
-  getCurrentWorkbook().getParametersAsync().then(function(a) {
-    parms = a; //save parms into a, it is easier to deal with
-
+  getCurrentWorkbook().getParametersAsync().then(function(parms) {
     // to check on whether parms is loaded correctly
     //console.log(parms);
 
