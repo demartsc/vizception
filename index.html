@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- original source for this code is: https://gitlab.com/brilliant-data/tableau-hackathlon-17-beatbox/blob/master/index.html-->
+
+<html lang="en">
+<head>
+  <meta name="d3 brush control on tableau dash" content=
+  "HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 15.18.1), see www.w3.org">
+
+  <title>Using d3.js Brush with Tableau</title>
+  <script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+
+  <script type="text/javascript">
+        function initViz() {
+            var containerDiv = document.getElementById("vizContainer"),
+                url = "https://public.tableau.com/views/d3_jsbrushinTableau/d3brushexample",
+                options = {
+                    hideTabs: true,
+                    onFirstInteractive: function () {
+                        console.log("We're up-n-runnin'");
+                    }
+                };
+            
+            var viz = new tableau.Viz(containerDiv, url, options); 
+            // Create a viz object and embed it in the container div.
+        }
+  </script>
+
+  <style>
+body {
+    background-color: white;
+}
+
+.bottom {
+text-align: center;
+}
+  </style>
+</head>
+
+<body onload="initViz();">
+  <div id="vizContainer"></div>
+</body>
+</html>
