@@ -130,14 +130,14 @@ function brushed() {
   sheet = getCurrentWorkbook().getActiveSheet();
   if(sheet.getSheetType() === 'worksheet') 
   {
-    sheet.applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
+    sheet.applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},"REPLACE");
   }
   else
   {
     worksheetArray = sheet.getWorksheets();
     for(var i =0; i < worksheetArray.length; i++)
     {
-        worksheetArray[i].applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},tableauSoftware.FilterUpdateType.REPLACE);
+        worksheetArray[i].applyRangeFilterAsync(xAxisField, {min: filts[0], max: filts[1]},"REPLACE");
     }
   }
 
