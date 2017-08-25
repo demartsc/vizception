@@ -49,7 +49,7 @@ body {
 
 var svg = d3.select("svg"),
     margin2 = {top: 0, right: 10, bottom: 20, left: 10},
-    width = window.innerWidth - margin2.left - margin2.right; //+svg.attr("width") - margin2.left - margin2.right,
+    width = 667 - margin2.left - margin2.right; //+svg.attr("width") - margin2.left - margin2.right, //window.innerWidth
     height2 = window.innerHeight - margin2.top - margin2.bottom; //+svg.attr("height") - margin2.top - margin2.bottom;
 
 var parseDate = d3.timeParse("%Y-%m-%d");
