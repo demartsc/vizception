@@ -127,7 +127,7 @@ body {
 <input type="text" id = "htext2" class="hidden" value="" />
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="vizception.js"></script>
-<script src="tableau-2.2.0.min.js"></script>
+<script src=" tableau-2.2.0.min.js"></script>
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script> 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -149,7 +149,7 @@ body {
             workbooka = tviz.getWorkbook();
             }
     };
-    tviz = new viz(onePh, oneUrl, oneOptions);
+    tviz = new tableauSoftware.Viz(onePh, oneUrl, oneOptions);
 
     var twoPh = document.getElementById("tableauViz2");
     var twoUrl = "https://public.tableau.com/views/VizceptionPublicExample/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 

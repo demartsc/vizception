@@ -459,7 +459,7 @@ initEditor = function() {
 //    $('body', window.parent.document).append('<script type="text/javascript">  $(function() { $( "#tabZoneId127" ).draggable({ start: function() { $(".frameOverlay").fadeIn("fast"); }, stop: function() { $(".frameOverlay").fadeOut("fast"); } }); }); <\/script>');
 
   //add event listener to the viz
-  return getCurrentViz().addEventListener('MARKS_SELECTION', onMarksSelect);
+  return getCurrentViz().addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelect);
 };
 
 
