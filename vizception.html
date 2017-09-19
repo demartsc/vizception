@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<!-- adapated from https://bl.ocks.org/mbostock/4062045 -->
+<meta charset="utf-8">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<style>
+
+body {
+  height: 100vh;
+  background-color: #000000;
+  color: #555;
+  border: 1px solid #dadada;
+  border-radius: 7px;
+  border-color: #2580c9;
+  box-shadow: 0 0 5px #2580c9;
+}
+
+.d3forceContainer{
+    float: left;
+    margin: 0 auto;
+    width: 100%;    
+}
+
+.link {
+  stroke: #38B492;
+  stroke-opacity: 0.3;
+  stroke-width: 1px;
+}
+
+.nodeStrokeClass {
+  stroke: #fff;
+  stroke-width: 0px;
+  opacity: 0.8;
+}
+
+  .tooltip { 
+    position: absolute;    
+    overflow: hidden;
+    float:left;
+    text-align: center;     
+    width: 305px;          
+    height: 100px;         
+    padding: 2px;       
+    font: 12px sans-serif;    
+/*    background: #E6E6E6; 
+    border: 0px;    */
+    border-radius: 7px;     
+    pointer-events: none;     
+    z-index:9999999;
+}
+
+  .mark { 
+    width: 374px;
+    height: 303px;
+    border-radius: 7px;     
+    border: 0px;
+    background-color: #000;
+}
+
+
+.hidden {
+  opacity: 0.0;
+}
+
+.closeX {
+    background: rgba(0,0,0,0);
+    color: #FFFFFF;
+    line-height: 25px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 5px;
+    width: 24px;
+    text-decoration: none;
+    font-weight: bold;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -moz-box-shadow: 1px 1px 3px #000;
+    -webkit-box-shadow: 1px 1px 3px #000;
+    box-shadow: 1px 1px 3px #000;
+}
+.closeX:hover {
+    color: #2580c9;
+/*    background: #00d9ff;*/
+}
+
+</style>
+
+</head>
+
+<body onload="appApi.initEditor();">
+    <!-- Button to trigger modal -->
+    <div id="TaskListDialog" class="modal show" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel">
+        <div class="modal-header" style="border-bottom: 1px solid #2580c9;">
+            <h4>Vizception tooltip</h4>
+            <h6><i>Brought to you by Chris DeMartini (<a href="https://twitter.com/demartsc">@demartsc</a>) and Tamas Foldi (<a href="https://twitter.com/tfoldi">@tfoldi</a>) </i></h6>
+            <div onclick="CloseTaskList();"> <p title="Close" class="closeX">X</p>
+            </div>
+        <div class="modal-body" style="padding:0px;">
+            <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-tabs" style="border-bottom: 1px solid #2580c9;">
+            <li class="active"><a href="#tab1" data-toggle="tab">d3.js force layout</a></li>
+            <li><a href="#tab3" data-toggle="tab">Matrix</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+                    <div id="d3force" class="d3forceContainer">
+                        <svg id= "d3forcesvg" width="400" height="300"></svg> 
+                        <!--<p>adapated from https://bl.ocks.org/mbostock/4062045 </p>-->
+                        <div id="tableauViz1" class="tooltip"></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="tab3">
+                    <div id="tableauViz2" class="mark"></div>
+                </div>
+            </div>
+            </div>
+       </div>
+       </div>
+
+
+
+<input type="text" id = "htext" class="hidden" value="" />
+<input type="text" id = "htext2" class="hidden" value="" />
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="vizception.js"></script>
+<!--<script src="http://stage-155.brilliant-data.net/javascripts/api/tableau-2.1.0.min.js"></script>-->
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script> 
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+//tableau js script for the tooltip viz
+  var tviz, tviz2, one, workbooka, workbookb, activeSheet, Worksheet, worksheet;
+  $(function() {
+    var onePh = document.getElementById("tableauViz1");
+    var oneUrl = "https://public.tableau.com/views/VizceptionPublicExample/tooltip?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+
+    var oneOptions = {
+    width: "100%",
+    height: "100%",
+            hideTabs: true,
+            hideToolbar: true,
+              onFirstInteractive: function() {
+            workbooka = tviz.getWorkbook();
+            }
+    };
+    tviz = new tableauSoftware.Viz(onePh, oneUrl, oneOptions);
+
+    var twoPh = document.getElementById("tableauViz2");
+    var twoUrl = "https://public.tableau.com/views/VizceptionPublicExample/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+
+    var twoOptions = {
+    width: "100%",
+    height: "100%",
+            hideTabs: true,
+            hideToolbar: true,
+              onFirstInteractive: function() {
+            workbookb = tviz2.getWorkbook();
+            }
+    };
+    tviz2 = new tableauSoftware.Viz(twoPh, twoUrl, twoOptions);
+});
+
+
+
+function vizParmUpdate(parmName,parmValue)
+{
+  workbook=tviz.getWorkbook();
+  workbook.changeParameterValueAsync(parmName,parmValue);
+};
+
+function vizFilter(filterName,filterValue,filterType)
+{
+  sheet= tviz.getWorkbook().getActiveSheet();
+  if(sheet.getSheetType() === 'worksheet') 
+  {
+    sheet.applyFilterAsync(filterName,filterValue,filterType); 
+  }
+  else
+  {
+    worksheetArray = sheet.getWorksheets();
+    for(var i =0; i < worksheetArray.length; i++)
+    {
+      if (filterValue=="all")
+      {
+        worksheetArray[i].applyFilterAsync(filterName,"","ALL"); 
+      }
+      else 
+      {
+        worksheetArray[i].applyFilterAsync(filterName,filterValue,filterType);         
+      }
+    }
+  }
+};
+
+
+function vizSheets()
+{
+  sheet= tviz.getWorkbook().getActiveSheet();
+  if(sheet.getSheetType() === 'worksheet') 
+  {
+    console.log(sheet.getName());
+  }
+  else
+  {
+    worksheetArray = sheet.getWorksheets();
+    for(var i =0; i < worksheetArray.length; i++)
+    {
+        console.log(worksheetArray[i].getName());
+    }
+  }
+};
+
+
+function CloseTaskList() {
+  $('html').fadeOut(1000);
+  setTimeout(function(){ window.parent.$('#tabZoneId127').css({"z-index":-9999}) }, 1000);
+};
+
+</script>
+
+<script>
+
+var svg = d3.select("#d3force").select("#d3forcesvg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+  radius=2;
+
+//var color = d3.scaleOrdinal(d3.schemeCategory20);
+var color = d3.scale.ordinal()
+  .domain(["zen", "social", "vendor", "other"])
+  .range(["#FF8000", "#F9B665" , "#FFFFFF", "#A4CDFF"]);
+
+var viz = d3.select("#d3force").select(".tooltip")
+    .style("opacity", 0);
+
+//set up force graph objects
+var link = svg.selectAll(".link");
+var node = svg.selectAll(".nodes");
+
+var force = d3.layout.force();
+
+//end set up force graph objects
+
+function property (v) {
+    return function (_) {
+    if(!arguments.length)
+            return v;
+        v = _;
+    return this;
+};
+}
+
+var drawd3Force = function(graph) {
+//d3.json("devs_on_stage_copy.json", function(error, graph) {
+//  if (error) throw error;
+
+//  console.log(graph);
+
+  force
+    .nodes(graph.nodes)
+    .links(graph.links);
+
+var nodes = force.nodes(),
+    links = force.links();
+
+  link = link.data(links, function(d) {return d.source + "-" + d.target;});
+
+  var setTooltipCoordinates = function () {
+    var viewportX = $(window).width();
+    var viewportY = $(window).height();
+    var vizX = d3.event.pageX + 5;
+    var vizY = d3.event.pageY;
+    var vizRect = viz.node().getBoundingClientRect();
+    var vizWidth = vizRect.width;
+    var vizHeight = vizRect.height;
+
+    if(vizX > viewportX / 2) {
+      vizX -= vizWidth + 5;
+      if (vizX < 1) vizX = 1;
+    }
+    
+    if (vizX > viewportX - vizWidth) {
+      vizX = viewportX - vizWidth + 1;
+    }
+
+    if(vizY > viewportY / 2) {
+      vizY -= vizHeight;
+      if (vizY < 1) vizY = 1;
+    }
+
+    viz.style("left", (vizX + 5) + "px")
+      .style("top", (vizY - 100) + "px");
+
+    return;
+  }
+
+  link.enter().append("line")
+      .attr("class", "link")
+      .attr("id",function (d) {return d.source + "-" + d.target;});
+/*      .on("mouseover", function(d) {
+          setTooltipCoordinates();
+          property.call(vizFilter("tweeter",d.target.name,"REPLACE"));
+          property.call(vizParmUpdate("Tweeters Tooltip",d.source.name));
+          viz.transition()    
+              .duration(500)    
+              .style("opacity", .9);
+          })          
+      .on("mouseout", function(d) {   
+          viz.transition()    
+              .duration(1000)    
+              .style("opacity", 0);
+          property.call(vizParmUpdate("Tweeters Tooltip","Type In Twitter Handle"));
+          });
+*/
+  link.exit().remove();
+
+  //standard update protocol for nodes
+  node = node.data(nodes, function(d) {return "Node;" + d.name})
+
+  nodeEnter = node.enter().append("g")
+      .attr("class", "nodes")
+      .call(force.drag);
+
+  nodeEnter.append("svg:circle")
+      .attr("class", "nodeStrokeClass")
+      .attr("r", 5)
+      .attr("id", function(d){return "Node;" + d.name})
+      .attr("fill", function(d) { return color(d.group); })
+      .on("mouseover", function(d) {
+          setTooltipCoordinates();
+          property.call(vizFilter("tweeter",d.name,"REPLACE"));
+          viz.transition()    
+              .duration(500)    
+              .style("opacity", .9);
+          })          
+      .on("mouseout", function(d) {   
+          viz.transition()    
+              .duration(1000)    
+              .style("opacity", 0)
+          });
+
+  node.exit().remove();
+
+  //node.append("title").text(function(d) { return d.name + ", " + d.group; }); // d3 title which we are replacing with the tableau tooltip
+
+  force.on("tick",function () {
+    node.attr("transform",function(d) {
+            //return "translate(" + d.x + "," + d.y + ")";
+            return "translate(" + Math.max(radius, Math.min(width - radius, d.x)) + "," + Math.max(radius, Math.min(height - radius, d.y)) + ")";
+        });
+
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+//    node.attr("cx", function(d) { return d.x; })
+//        .attr("cy", function(d) { return d.y; });
+
+//        .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+//        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+  });
+
+  force
+    .size([width,height])
+    .linkDistance([40])
+    .charge([-100])
+    .start();
+
+}
+ 
+function keepNodesOnTop(){
+    $(".nodeStrokeClass").each(function (index) {
+        var gnode = this.parentNode;
+        gnode.parentNode.appendChild(gnode);
+    });
+}
+
+/*
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+*/
+
+</script>
+</body>
+</html>
