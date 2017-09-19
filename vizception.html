@@ -126,19 +126,19 @@ body {
 <input type="text" id = "htext" class="hidden" value="" />
 <input type="text" id = "htext2" class="hidden" value="" />
 <script src="https://d3js.org/d3.v3.min.js"></script>
-<script src="http://stage-155.brilliant-data.net/javascripts/api/tableau-2.1.0.min.js"></script>
+<script src="vizception.js"></script>
+<!--<script src="http://stage-155.brilliant-data.net/javascripts/api/tableau-2.1.0.min.js"></script>-->
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script> 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="http://stage-155.brilliant-data.net/webdataconnectors/js/vizception.js"></script>
 
 <script>
 //tableau js script for the tooltip viz
   var tviz, tviz2, one, workbooka, workbookb, activeSheet, Worksheet, worksheet;
   $(function() {
     var onePh = document.getElementById("tableauViz1");
-    var oneUrl = "http://stage-155.brilliant-data.net/views/vizception/tooltip?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+    var oneUrl = "https://public.tableau.com/views/VizceptionPublicExample/tooltip?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
 
     var oneOptions = {
     width: "100%",
@@ -152,7 +152,7 @@ body {
     tviz = new tableauSoftware.Viz(onePh, oneUrl, oneOptions);
 
     var twoPh = document.getElementById("tableauViz2");
-    var twoUrl = "http://stage-155.brilliant-data.net/views/vizception/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
+    var twoUrl = "https://public.tableau.com/views/VizceptionPublicExample/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
 
     var twoOptions = {
     width: "100%",
