@@ -149,7 +149,7 @@ body {
             workbooka = tviz.getWorkbook();
             }
     };
-    tviz = new tableauSoftware.Viz(onePh, oneUrl, oneOptions);
+    tviz = new viz(onePh, oneUrl, oneOptions);
 
     var twoPh = document.getElementById("tableauViz2");
     var twoUrl = "https://public.tableau.com/views/VizceptionPublicExample/mark?:showVizHome=no&:showTabs=n&:display_spinner=no&:embed=y"; 
@@ -163,7 +163,7 @@ body {
             workbookb = tviz2.getWorkbook();
             }
     };
-    tviz2 = new tableauSoftware.Viz(twoPh, twoUrl, twoOptions);
+    tviz2 = new viz(twoPh, twoUrl, twoOptions);
 });
 
 
