@@ -259,10 +259,10 @@ initEditor = function() {
 
   function displayModal() {
     //before we show anything we need to move the window to where the mouse is
-    window.parent.$('#tabZoneId127').css({"z-index":9999})
+    //window.parent.$('#tabZoneId127').css({"z-index":9999})
     
      //once we have moved the window then we can show it
-    $('html').fadeIn(1000);
+    //$('html').fadeIn(1000);
   };
 
   function consolidatedFilters(passedArray, passedFilter) { // passedArray needs to contain all underlying data from Tableau, passedFilter contains all the selected marks that the user picked
